@@ -1,0 +1,110 @@
+ID,Section,Task,Status,Notes
+1,Infrastructure,Docker Compose setup (backend/docker-compose.yml),Done,postgres + auction-service services defined
+2,Infrastructure,Restructure: Spring Boot source under backend/auction-service/,Done,pom.xml and src/ moved; docker-compose volume updated to ./auction-service:/app
+3,Database,V1 Migration: full schema (all enums + casts + 20 tables),Done,V1__create_schema.sql complete
+4,Database,V2 Migration: seed data (users/vendors/bookings/auctions/bids/contracts/rfi/rfq/notifs),Done,V2__seed_data.sql complete with realistic data
+5,Maven,pom.xml with all dependencies (web/jpa/validation/security/flyway/postgres/lombok),Done,exists under auction-service/ — verify lombok and flyway deps present
+6,Config,application.properties + application-dev.properties,Done,both files under auction-service/src/main/resources
+7,Bootstrap,AuctionServiceApplication.java,Done,
+8,Config,CorsConfig.java (allow all origins in dev),Done,
+9,Config,SecurityConfig.java (permit all in dev profile),Done,
+10,Exception,ResourceNotFoundException.java,Done,
+11,Exception,BusinessException.java,Done,
+12,Exception,GlobalExceptionHandler.java (@ControllerAdvice),Done,
+13,Enum,All 14 enums (AllocationMode/Rank/AuctionEventType/Status/Type/BookingStatus/ContractStatus/Type/InternalRole/NotifCategory/RateUnit/RfiStatus/RfqStatus/VendorRespStatus),Done,under model/enums/
+14,Entity,Entity: InternalUser,Done,
+15,Entity,Entity: Vendor,Done,
+16,Entity,Entity: Booking,Done,
+17,Entity,Entity: Auction (with @ManyToMany invitedVendors → auction_invited_vendors),Done,
+18,Entity,Entity: AuctionLane,Done,
+19,Entity,Entity: AuctionBid,Done,
+20,Entity,Entity: AuctionEvent,Done,
+21,Entity,Entity: AwardDecision,Done,
+22,Entity,Entity: Contract (contracts table),Done,
+23,Entity,Entity: PlacementFailure (placement_failures table),Done,
+24,Entity,Entity: Rfi (rfis table),Done,
+25,Entity,Entity: RfiTargetEmail (rfi_target_emails table),Done,
+26,Entity,Entity: RfiVendorTracking (rfi_vendor_tracking table),Done,
+27,Entity,Entity: Rfq (rfqs table),Done,
+28,Entity,Entity: RfqTargetEmail (rfq_target_emails table),Done,
+29,Entity,Entity: RfqVendorTracking (rfq_vendor_tracking table),Done,
+30,Entity,Entity: RfqResponse (rfq_responses table),Done,
+31,Entity,Entity: RfqResponseRow (rfq_response_rows table),Done,
+32,Entity,Entity: Notification (notifications table),Done,
+33,Repository,Repository: InternalUserRepository,Done,
+34,Repository,Repository: VendorRepository,Done,
+35,Repository,Repository: BookingRepository,Done,
+36,Repository,Repository: AuctionRepository (findByStatus/Type/search queries),Done,
+37,Repository,Repository: AuctionLaneRepository,Done,
+38,Repository,Repository: AuctionBidRepository (findByLaneIdAndIsCurrentTrue),Done,
+39,Repository,Repository: AuctionEventRepository,Done,
+40,Repository,Repository: AwardDecisionRepository,Done,
+41,Repository,Repository: ContractRepository (findByStatusIn + findExpiringSoon),Done,
+42,Repository,Repository: RfiRepository,Done,
+43,Repository,Repository: RfqRepository,Done,
+44,Repository,Repository: RfqResponseRepository,Done,
+45,Repository,Repository: NotificationRepository,Done,
+46,DTO,DTOs: DashboardResponse (KPIs + priority auctions + expiring contracts),Done,KpiDto + PriorityAuctionDto + ExpiringContractDto + DashboardResponse
+47,DTO,DTOs: AuctionDto / AuctionLaneDto / AuctionBidDto,Done,AuctionDto + AuctionLaneDto + AuctionLaneSummaryDto + AuctionBidDto + AuctionEventDto
+48,DTO,DTOs: AwardDecisionDto / ContractDto / PlacementFailureDto,Done,AwardDecisionDto + AwardDecisionRequest + ContractDto + PlacementFailureDto
+49,DTO,DTOs: RfiDto / RfqDto / RfqResponseDto / RfqResponseRowDto,Done,RfiDto + CreateRfiRequest + RfqDto + CreateRfqRequest + RfqResponseDto + RfqResponseRowDto + UploadRfqResponseRequest + SourcingVendorTrackingDto + PatchStatusRequest
+50,DTO,DTOs: NotificationDto / BookingDto / VendorDto,Done,NotificationDto + BookingDto + VendorDto + CreateAuctionRequest + CreateLaneRequest + PlaceBidRequest + SearchResponse
+51,Service,DashboardService (aggregate KPIs: liveAuctions/pendingAwards/expiringContracts/priorityList),Done,DashboardService implemented with liveAuctions/pendingAwards/expiringContracts KPIs + priorityAuctions + expiringContractsList
+52,Service,AuctionService (CRUD: list + create + detail),Done,listAuctions + getAuction + createAuction implemented
+53,Service,AuctionService lifecycle (launch / cancel / complete),Done,launchAuction + cancelAuction + completeAuction implemented
+54,Service,BidService (place bid + rank all is_current bids + timer extension logic),Done,getBids + placeBid with ranking + timer extension implemented
+55,Service,AwardService (award decisions + status→AWARDED / finalize→contracts / reject→NO_BIDS),Done,awardAuction + finalizeAuction + rejectAuction implemented
+56,Service,ContractService (list / detail / terminate),Done,ContractService with listContracts/getContract/terminateContract + mapToDto with placementFailures
+57,Service,ContractExpiryScheduler (@Scheduled daily — update EXPIRING_SOON/EXPIRED),Done,ContractExpiryScheduler with @Scheduled(cron="0 0 1 * * *") updating ACTIVE→EXPIRING_SOON and EXPIRING_SOON→EXPIRED
+58,Service,RfiService (create inserts rfi_target_emails + rfi_vendor_tracking rows),Done,RfiService with listRfis/createRfi/getRfi/patchStatus; createRfi inserts target emails + vendor tracking rows
+59,Service,RfqService (create inserts rfq_target_emails + rfq_vendor_tracking rows),Done,RfqService with listRfqs/createRfq/getRfq/patchStatus/uploadResponse/getResponsesForRfq/getAllResponses
+60,Service,NotificationService (auto-create on: auction LIVE/COMPLETED/AWARDED + contract EXPIRING_SOON + RFI/RFQ published),Done,NotificationService with all notify methods + getNotifications/markRead/markAllRead
+61,Controller,BaseController.java (extractUserId from X-User-Id header),Done,
+62,API,GET /api/v1/dashboard,Done,DashboardController GET /api/v1/dashboard
+63,API,GET /api/v1/vendors + GET /api/v1/vendors/lookup?search=,Done,VendorController with listVendors + lookupVendors
+64,API,GET /api/v1/bookings + GET /api/v1/bookings/lookup + GET /api/v1/bookings/:id,Done,BookingController with listBookings + lookupBookings + getBooking
+65,API,GET /api/v1/auctions (filter: status / type / search),Done,AuctionController listAuctions
+66,API,POST /api/v1/auctions (create with lanes + invitedVendors + optional launchNow),Done,AuctionController createAuction
+67,API,GET /api/v1/auctions/:id (full detail: lanes + ranking + awardDecisions + auditTrail),Done,AuctionController getAuction
+68,API,POST /api/v1/auctions/:id/launch (precondition: status==DRAFT),Done,AuctionController launchAuction
+69,API,POST /api/v1/auctions/:id/cancel (precondition: status in DRAFT/LIVE/COMPLETED),Done,AuctionController cancelAuction
+70,API,POST /api/v1/auctions/:id/complete,Done,AuctionController completeAuction
+71,API,GET /api/v1/auctions/:auctionId/lanes/:laneId/bids (sorted by amount ASC),Done,AuctionController getBids
+72,API,POST /api/v1/auctions/:auctionId/lanes/:laneId/bids (validate + rank + timer extension),Done,AuctionController placeBid
+73,API,POST /api/v1/auctions/:auctionId/award,Done,AuctionController awardAuction
+74,API,POST /api/v1/auctions/:auctionId/finalize (creates contracts from award_decisions),Done,AuctionController finalizeAuction
+75,API,POST /api/v1/auctions/:auctionId/reject (status→NO_BIDS),Done,AuctionController rejectAuction
+76,API,GET /api/v1/contracts (filter: status / search / vendorId),Done,ContractController GET /api/v1/contracts
+77,API,GET /api/v1/contracts/:id,Done,ContractController GET /api/v1/contracts/:id
+78,API,POST /api/v1/contracts/:id/terminate,Done,ContractController POST /api/v1/contracts/:id/terminate
+79,API,GET /api/v1/rfis + POST /api/v1/rfis,Done,RfiController GET+POST /api/v1/rfis
+80,API,GET /api/v1/rfis/:id + PATCH /api/v1/rfis/:id/status,Done,RfiController GET /api/v1/rfis/:id + PATCH /api/v1/rfis/:id/status
+81,API,GET /api/v1/rfqs + POST /api/v1/rfqs,Done,RfqController GET+POST /api/v1/rfqs
+82,API,GET /api/v1/rfqs/:id + PATCH /api/v1/rfqs/:id/status,Done,RfqController GET /api/v1/rfqs/:id + PATCH /api/v1/rfqs/:id/status
+83,API,GET /api/v1/rfq-responses (flat view: search + date range),Done,RfqResponseController GET /api/v1/rfq-responses with search + date range
+84,API,POST /api/v1/rfqs/:rfqId/responses + GET /api/v1/rfqs/:rfqId/responses,Done,RfqResponseController POST+GET /api/v1/rfqs/:rfqId/responses
+85,API,GET /api/v1/notifications + PATCH /:id/read + PATCH /read-all,Done,NotificationController GET /api/v1/notifications + PATCH /:id/read + PATCH /read-all
+86,API,GET /api/v1/search?q= (ILIKE across auction titles + contract lanes),Done,SearchController GET /api/v1/search?q= across auction titles + contract vendorName/lane
+87,Frontend,Tab 1 – Dashboard: wire KPIs + priority auctions + expiring contracts cards,Done,fetchDashboard() via dashboard.service.ts; real KPIs + priority auctions + expiring contracts lists
+88,Frontend,Tab 2 – Client Hub RFI: wire GET/POST /rfis + PATCH status,Done,sourcing.service.ts fetchRfis/createRfi/fetchRfi/patchRfiStatus; SourcingPage + RfiCreatePage + RfiDetailPage wired
+89,Frontend,Tab 2 – Client Hub RFQ: wire GET/POST /rfqs + PATCH status,Done,sourcing.service.ts fetchRfqs/createRfq/fetchRfq/patchRfqStatus; RfqCreatePage + RfqDetailPage wired
+90,Frontend,Tab 3 – RFQ Responses: wire GET /rfq-responses + POST /rfqs/:id/responses,Done,rfq-responses.service.ts fetchAllRfqResponses; RfqResponsesPage wired with loading/error states
+91,Frontend,Tab 4 – Auctions List + Create: wire GET/POST /auctions + vendor/booking lookups,Done,AuctionsPage uses fetchAuctions(); AuctionCreatePage uses createAuction() + fetchBookings() + fetchVendors() via auctions.service.ts
+92,Frontend,Tab 4 – Auctions Detail + Lifecycle: wire launch/cancel/complete APIs,Done,AuctionDetailPage uses fetchAuction() + launchAuction() + cancelAuction(); refetches after each mutation
+93,Frontend,Tab 4 – Auctions Bidding + Award: wire bids + award + finalize + reject,Done,AuctionDetailPage uses awardAuction() + finalizeAuction() + rejectAuction(); contracts refreshed after finalize
+94,Frontend,Tab 5 – Contracts: wire list/detail + terminate,Done,ContractsPage uses fetchContracts() via contracts.service.ts; loading state + client-side filter
+95,Frontend,Tab 6 – Notifications: wire GET /notifications + mark read,Done,fetchNotifications() + markNotificationRead() + markAllNotificationsRead() via notifications.service.ts; store synced for sidebar badge
+96,QA,Docker Compose end-to-end: migrations run + seed data loads + all APIs return data,Done,
+97,Vendor Portal,AuctionRepository: add findByInvitedVendorIdAndOptionalStatus() JPQL — JOIN invitedVendors v WHERE v.id = :vendorId,Done,Screen: vendor-web > Sourcing tab (auction list) + Dashboard (live/upcoming counts)
+98,Vendor Portal,AuctionService.listAuctions(): add invitedVendorId parameter + branch to use new repo query,Done,Screen: vendor-web > Sourcing tab + Dashboard; vendor-web calls GET /api/v1/auctions?invitedVendorId= directly
+99,Vendor Portal,AuctionController.listAuctions(): expose ?invitedVendorId= query param (UUID; optional; no change to existing params),Done,Screen: vendor-web > Sourcing (ALL/UPCOMING/LIVE/ENDED/CANCELLED tabs) + Dashboard auction KPIs
+100,Vendor Portal,Verify vendor scoping: GET /api/v1/auctions?invitedVendorId={id} returns only auctions where that UUID is in auction_invited_vendors,Done,Screen: vendor-web > Sourcing + Dashboard; GET /api/v1/contracts?vendorId= already scoped correctly
+101,Vendor Portal,VendorServiceClient.java: RestTemplate bean calling vendor-service POST /api/v1/internal/notifications with X-Service-Key header,Done,Called by NotificationService when auction goes LIVE or is finalized/awarded
+102,Vendor Portal,NotificationService.notifyAuctionLive(): call VendorServiceClient.pushNotification() with all invitedVendorIds after saving internal notification,Done,Pushes AUCTIONS category notification to vendor-service; wrapped in try-catch so failure never blocks auction
+103,Vendor Portal,NotificationService.notifyAuctionAwarded(): call VendorServiceClient.pushNotification() for winning vendorIds after finalize,Done,Winning vendors get contract-created notification in vendor-web
+104,Vendor Portal,docker-compose.yml: add VENDOR_SERVICE_URL + VENDOR_SERVICE_KEY env vars to auction-service; add VENDOR_SERVICE_KEY to vendor-service,Done,
+105,QA,Vendor notification flow E2E: launch auction in auction-web → verify vendor_notifications row created in vendor_db for all invited vendors,Done,
+106,Runtime,PostgreSQL enum binding: add stringtype=unspecified to auction datasource URLs,Done,Fixes native enum query parameters in Docker/runtime smoke tests
+107,API,Vendor-scoped auction list query split for nullable status,Done,GET /api/v1/auctions?invitedVendorId= now avoids nullable enum inference failure and returns 200
+108,Frontend,Auction TypeScript integration fixes,Done,Fixed commodity import default/RFQ vendor count/legacy L1-L3 allocation type mismatches; rerun build blocked by environment usage limit after patch
+109,QA,Docker Compose backend smoke test,Done,postgres healthy; auction-service running on 8082; dashboard/invited auctions/contracts endpoints smoke-tested with 200 after fixes
