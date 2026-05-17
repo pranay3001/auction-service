@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -22,17 +21,6 @@ public class VendorController {
     public ResponseEntity<?> listVendors() {
         List<Vendor> vendors = vendorRepository.findAll();
         List<VendorDto> result = vendors.stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(result);
-    }
-
-    @GetMapping("/lookup")
-    public ResponseEntity<?> lookupVendors(@RequestParam Optional<String> search) {
-        List<Vendor> vendors = vendorRepository.findAll();
-        List<VendorDto> result = vendors.stream()
-                .filter(v -> search.isEmpty()
-                        || v.getName().toLowerCase().contains(search.get().toLowerCase()))
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(result);
